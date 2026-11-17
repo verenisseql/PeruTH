@@ -1,0 +1,16 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.py[cod]
+.streamlit/secrets.toml
+models/*_full.joblib
+data/raw/
+data/interim/
+data/processed/
+reports/*.csv
+reports/*.json
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!models/.gitkeep
+!reports/.gitkeep
