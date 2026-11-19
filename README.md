@@ -294,10 +294,13 @@ Las recomendaciones no sustituyen una evaluación médica ni las recomendaciones
 
 ### Capturas de la aplicación
 
+<img width="1876" height="1085" alt="Screenshot 2026-11-19 113050" src="https://github.com/user-attachments/assets/152c24f0-8795-480d-bd12-e1cf8d910654" />
 *Figura 1. Pantalla principal de Perú Travel Health.*
 
+<img width="1917" height="1101" alt="Screenshot 2026-11-19 113135" src="https://github.com/user-attachments/assets/12a17d1d-9b25-4bb6-8578-29dfe17290fa" />
 *Figura 2. Indicadores experimentales de dengue y malaria.*
 
+<img width="1917" height="1075" alt="Screenshot 2026-11-19 113305" src="https://github.com/user-attachments/assets/c2b36007-8baa-4525-aa97-551f7bf86f94" />
 *Figura 3. Mapa interactivo y recomendaciones para viajeros.*
 
 ## 11. Dificultades encontradas y soluciones
