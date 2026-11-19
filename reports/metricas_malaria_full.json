@@ -1,0 +1,125 @@
+{
+  "enfermedad": "MALARIA",
+  "modo": "full",
+  "n_train": 20570,
+  "n_validacion": 4598,
+  "n_test": 4576,
+  "train_hasta": 2017,
+  "validacion": "2018-2021",
+  "test": {
+    "observaciones": 4576,
+    "accuracy": 0.9718094405594405,
+    "mae_casos": 4.42142206125344,
+    "f1_macro": 0.6041521302674796,
+    "recall_alto": 0.26,
+    "matriz_confusion": [
+      [
+        4370,
+        66,
+        3
+      ],
+      [
+        6,
+        64,
+        17
+      ],
+      [
+        2,
+        35,
+        13
+      ]
+    ],
+    "reporte_clasificacion": {
+      "Bajo": {
+        "precision": 0.998172681589767,
+        "recall": 0.9844559585492227,
+        "f1-score": 0.9912668708177385,
+        "support": 4439.0
+      },
+      "Moderado": {
+        "precision": 0.3878787878787879,
+        "recall": 0.735632183908046,
+        "f1-score": 0.5079365079365079,
+        "support": 87.0
+      },
+      "Alto": {
+        "precision": 0.3939393939393939,
+        "recall": 0.26,
+        "f1-score": 0.3132530120481928,
+        "support": 50.0
+      },
+      "accuracy": 0.9718094405594405,
+      "macro avg": {
+        "precision": 0.5933302878026496,
+        "recall": 0.6600293808190896,
+        "f1-score": 0.6041521302674796,
+        "support": 4576.0
+      },
+      "weighted avg": {
+        "precision": 0.9799674295934004,
+        "recall": 0.9718094405594405,
+        "f1-score": 0.9746693108288521,
+        "support": 4576.0
+      }
+    }
+  },
+  "modelo_probabilidad": "RandomForestClassifier.predict_proba; NO calibrada, no es riesgo individual",
+  "definicion_riesgo": "Bajo: casos <= percentil 60 de positivos; Moderado: hasta percentil 90; Alto: por encima, por departamento (solo entrenamiento).",
+  "validation": {
+    "observaciones": 4598,
+    "accuracy": 0.9712918660287081,
+    "mae_casos": 4.7972133603567215,
+    "f1_macro": 0.6919433192369545,
+    "recall_alto": 0.4909090909090909,
+    "matriz_confusion": [
+      [
+        4366,
+        62,
+        7
+      ],
+      [
+        24,
+        73,
+        11
+      ],
+      [
+        4,
+        24,
+        27
+      ]
+    ],
+    "reporte_clasificacion": {
+      "Bajo": {
+        "precision": 0.9936276741010469,
+        "recall": 0.9844419391206314,
+        "f1-score": 0.9890134783101144,
+        "support": 4435.0
+      },
+      "Moderado": {
+        "precision": 0.4591194968553459,
+        "recall": 0.6759259259259259,
+        "f1-score": 0.5468164794007491,
+        "support": 108.0
+      },
+      "Alto": {
+        "precision": 0.6,
+        "recall": 0.4909090909090909,
+        "f1-score": 0.54,
+        "support": 55.0
+      },
+      "accuracy": 0.9712918660287081,
+      "macro avg": {
+        "precision": 0.6842490569854642,
+        "recall": 0.7170923186518827,
+        "f1-score": 0.6919433192369545,
+        "support": 4598.0
+      },
+      "weighted avg": {
+        "precision": 0.9763644280771031,
+        "recall": 0.9712918660287081,
+        "f1-score": 0.9732559713094037,
+        "support": 4598.0
+      }
+    }
+  }
+}

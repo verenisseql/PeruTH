@@ -12,9 +12,18 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, classification_report, accuracy_score
+from sklearn.metrics import (
+    mean_absolute_error,
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    precision_score,
+    recall_score,
+    f1_score
+)
 from .config import MODELS, REPORTS, PROCESSED
 from .features import TRAVEL_FEATURES, FULL_FEATURES
+
 
 
 def make_pipeline(features,kind):
@@ -108,12 +117,55 @@ def train_one(disease,mode,data):
         actual=classes_for(part,thresholds)
         pred=clf.predict(part[features])
         cases=np.expm1(reg.predict(part[features])).clip(min=0)
-        report[name]={
-            "observaciones":len(part),
-            "accuracy":float(accuracy_score(actual,pred)),
-            "mae_casos":float(mean_absolute_error(part.casos,cases)),
-            "reporte_clasificacion":classification_report(actual,pred,
-                labels=[0,1,2],target_names=["Bajo","Moderado","Alto"],zero_division=0,output_dict=True)
+
+        #matriz de confusión de las tres categorías
+        matriz = confusion_matrix(
+            actual,
+            pred,
+            labels=[0, 1, 2]
+        )
+        if name == "test":
+            print(f"\nMATRIZ DE CONFUSIÓN: {disease}/{mode}")
+            print("Filas: clases reales | Columnas: predicciones")
+            print(matriz)
+
+            print("\nREPORTE DE CLASIFICACIÓN:")
+            print(
+                classification_report(
+                    actual,
+                    pred,
+                    labels=[0, 1, 2],
+                    target_names=["Bajo", "Moderado", "Alto"],
+                    zero_division=0
+                )
+            )
+
+        report[name] = {
+            "observaciones": len(part),
+            "accuracy": float(accuracy_score(actual, pred)),
+            "mae_casos": float(
+                mean_absolute_error(part.casos, cases)
+            ),
+            "f1_macro": float(
+                f1_score(actual, pred, labels=[0, 1, 2],
+                         average="macro", zero_division=0)
+            ),
+            "recall_alto": float(
+                recall_score(
+                    actual, pred,
+                    labels=[0, 1, 2],
+                    average=None,
+                    zero_division=0
+                )[2]
+            ),
+            "matriz_confusion": matriz.tolist(),
+            "reporte_clasificacion": classification_report(
+                actual, pred,
+                labels=[0, 1, 2],
+                target_names=["Bajo", "Moderado", "Alto"],
+                zero_division=0,
+                output_dict=True
+            )
         }
     payload={"classifier":clf,"regressor":reg,"thresholds":thresholds,
              "features":features,"mode":mode,"disease":disease,"metadata":report}

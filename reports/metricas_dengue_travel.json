@@ -1,0 +1,125 @@
+{
+  "enfermedad": "DENGUE",
+  "modo": "travel",
+  "n_train": 9286,
+  "n_validacion": 2722,
+  "n_test": 3656,
+  "train_hasta": 2017,
+  "validacion": "2018-2021",
+  "test": {
+    "observaciones": 3656,
+    "accuracy": 0.3170131291028446,
+    "mae_casos": 161.48084753137397,
+    "f1_macro": 0.30156456486556377,
+    "recall_alto": 0.12890839275918814,
+    "matriz_confusion": [
+      [
+        662,
+        230,
+        60
+      ],
+      [
+        540,
+        262,
+        79
+      ],
+      [
+        798,
+        790,
+        235
+      ]
+    ],
+    "reporte_clasificacion": {
+      "Bajo": {
+        "precision": 0.331,
+        "recall": 0.6953781512605042,
+        "f1-score": 0.44850948509485095,
+        "support": 952.0
+      },
+      "Moderado": {
+        "precision": 0.20436817472698907,
+        "recall": 0.2973893303064699,
+        "f1-score": 0.2422561257512714,
+        "support": 881.0
+      },
+      "Alto": {
+        "precision": 0.6283422459893048,
+        "recall": 0.12890839275918814,
+        "f1-score": 0.21392808375056896,
+        "support": 1823.0
+      },
+      "accuracy": 0.3170131291028446,
+      "macro avg": {
+        "precision": 0.3879034735720979,
+        "recall": 0.3738919581087207,
+        "f1-score": 0.30156456486556377,
+        "support": 3656.0
+      },
+      "weighted avg": {
+        "precision": 0.4487495285484081,
+        "recall": 0.3170131291028446,
+        "f1-score": 0.2818379576790086,
+        "support": 3656.0
+      }
+    }
+  },
+  "modelo_probabilidad": "RandomForestClassifier.predict_proba; NO calibrada, no es riesgo individual",
+  "definicion_riesgo": "Bajo: casos <= percentil 60 de positivos; Moderado: hasta percentil 90; Alto: por encima, por departamento (solo entrenamiento).",
+  "validation": {
+    "observaciones": 2722,
+    "accuracy": 0.4085231447465099,
+    "mae_casos": 36.948821527419355,
+    "f1_macro": 0.3578820382463743,
+    "recall_alto": 0.11731843575418995,
+    "matriz_confusion": [
+      [
+        674,
+        422,
+        151
+      ],
+      [
+        305,
+        354,
+        100
+      ],
+      [
+        393,
+        239,
+        84
+      ]
+    ],
+    "reporte_clasificacion": {
+      "Bajo": {
+        "precision": 0.4912536443148688,
+        "recall": 0.5404971932638332,
+        "f1-score": 0.5147002672775869,
+        "support": 1247.0
+      },
+      "Moderado": {
+        "precision": 0.34876847290640395,
+        "recall": 0.466403162055336,
+        "f1-score": 0.399098083427283,
+        "support": 759.0
+      },
+      "Alto": {
+        "precision": 0.2507462686567164,
+        "recall": 0.11731843575418995,
+        "f1-score": 0.1598477640342531,
+        "support": 716.0
+      },
+      "accuracy": 0.4085231447465099,
+      "macro avg": {
+        "precision": 0.3635894619593297,
+        "recall": 0.374739597024453,
+        "f1-score": 0.3578820382463743,
+        "support": 2722.0
+      },
+      "weighted avg": {
+        "precision": 0.38825969645658004,
+        "recall": 0.4085231447465099,
+        "f1-score": 0.3891247897373196,
+        "support": 2722.0
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ data/interim/
 data/processed/
 reports/*.csv
 reports/*.json
+!reports/metricas_*.json
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
