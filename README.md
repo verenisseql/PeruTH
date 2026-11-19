@@ -417,7 +417,7 @@ PeruTH/
 
 *Los archivos de métricas y modelos se incluyen según los cambios publicados en el repositorio.*
 
-## 14. Limitaciones y mejoras futuras
+## 14. Próximas etapas y oportunidades de investigación
 
 Perú Travel Health es un prototipo de investigación y aprendizaje que todavía presenta oportunidades de mejora:
 
