@@ -1,148 +1,470 @@
-# 🧭 Perú Travel Health — Dengue y Malaria (2000–2025)
+# Perú Travel Health
+### Inteligencia artificial para el análisis de dengue y malaria en viajeros del Perú
 
-Aplicación experimental orientada a **viajeros en Perú**, con Streamlit y estimaciones basadas en registros epidemiológicos del CDC-MINSA y clima de Open-Meteo.
+**Proyecto de Machine Learning, epidemiología y visualización interactiva**
 
-> **Advertencia sanitaria:** no proporciona una probabilidad de infección personal, diagnóstico, incidencia real actual, ni alerta oficial de brote. La categoría `Bajo/Moderado/Alto` se refiere a un **nivel de actividad semanal departamental definido estadísticamente**; los porcentajes son salidas del modelo aún **no calibradas**. Los registros epidemiológicos llegan solo hasta 2025. Comprobar avisos del MINSA y consultar medicina del viajero.
+**Repositorio:** https://github.com/verenisseql/PeruTH
 
-## Requisitos
+**Tecnologías:** Python · Scikit-learn · Pandas · Streamlit · Plotly · Open-Meteo
 
-- Python **3.10 o superior** (recomendado 3.11/3.12)
-- Internet para descargar el histórico de Open-Meteo y visualizar el clima en vivo
-- Memoria libre suficiente para leer los archivos (~1 GB aconsejable)
+---
 
-## Estructura
+## 1. Descripción del proyecto
+
+**Perú Travel Health** es un prototipo de inteligencia artificial orientado a viajeros que desean conocer las condiciones climáticas y los patrones estimados de actividad epidemiológica de dengue y malaria en diferentes departamentos del Perú.
+
+El proyecto combina registros históricos de vigilancia epidemiológica correspondientes al periodo **2000–2025** con información meteorológica obtenida mediante la API de Open-Meteo.
+
+A partir de estos datos, se entrenaron modelos de Machine Learning para estimar casos semanales y clasificar la actividad epidemiológica en tres categorías:
+
+- **Bajo:** actividad histórica relativamente baja.
+- **Moderado:** actividad histórica intermedia.
+- **Alto:** actividad histórica elevada.
+
+Los resultados se presentan mediante un dashboard interactivo desarrollado con Streamlit.
+
+> **Importante:** Perú Travel Health es un prototipo académico. Sus predicciones no representan probabilidades individuales de contagio, diagnósticos médicos ni alertas epidemiológicas oficiales del MINSA. Las puntuaciones del clasificador no están calibradas.
+
+## 2. ¿Qué problema buscamos resolver?
+
+Perú posee una gran diversidad geográfica y climática. Las condiciones ambientales pueden variar considerablemente entre la costa, los Andes y la Amazonía.
+
+Algunas enfermedades transmitidas por mosquitos, como el dengue y la malaria, presentan patrones epidemiológicos relacionados con factores ambientales, sociales y geográficos.
+
+Sin embargo, la información epidemiológica histórica no siempre resulta sencilla de consultar e interpretar para una persona que está planificando un viaje.
+
+Por ello, este proyecto plantea una aplicación que permita explorar información epidemiológica y meteorológica mediante una interfaz visual, accesible y orientada a viajeros.
+
+## 3. ¿Por qué dengue y malaria?
+
+### Dengue
+
+El dengue es una enfermedad viral transmitida principalmente por mosquitos del género *Aedes*.
+
+Se seleccionó por su importancia epidemiológica en el Perú y porque factores como la temperatura y las precipitaciones pueden influir en las condiciones ambientales relacionadas con su transmisión.
+
+### Malaria
+
+La malaria es una enfermedad parasitaria transmitida principalmente por mosquitos *Anopheles* infectados.
+
+En el Perú, presenta especial relevancia en determinadas zonas amazónicas.
+
+Su incorporación permite estudiar otra enfermedad transmitida por mosquitos que posee características epidemiológicas y geográficas diferentes a las del dengue.
+
+### ¿Por qué analizarlas por separado?
+
+Aunque ambas enfermedades son transmitidas por mosquitos, tienen distintos agentes causales, vectores y patrones de transmisión.
+
+Por ello, Perú Travel Health utiliza **modelos independientes para dengue y malaria**, evitando combinarlas en una única predicción.
+
+## 4. Objetivos
+
+### Objetivo general
+
+Desarrollar una aplicación basada en Machine Learning que integre datos epidemiológicos históricos y variables meteorológicas para estimar patrones de actividad semanal de dengue y malaria y visualizarlos mediante una interfaz interactiva para viajeros.
+
+### Objetivos específicos
+
+1. Procesar datos epidemiológicos históricos del Perú.
+2. Obtener temperatura y precipitación mediante Open-Meteo.
+3. Integrar información epidemiológica y climática por departamento y semana.
+4. Entrenar modelos independientes de clasificación y regresión.
+5. Evaluar el desempeño de los modelos utilizando datos de periodos posteriores al entrenamiento.
+6. Desarrollar un dashboard interactivo que facilite la interpretación de resultados.
+
+## 5. Tecnologías utilizadas
+
+| Tecnología | Uso |
+|---|---|
+| Python | Desarrollo del proyecto |
+| Pandas | Procesamiento e integración de datos |
+| NumPy | Operaciones numéricas |
+| Scikit-learn | Machine Learning |
+| Random Forest | Clasificación y regresión |
+| Joblib | Almacenamiento de modelos |
+| Open-Meteo | Información meteorológica |
+| Streamlit | Interfaz web interactiva |
+| Plotly | Gráficos, medidores y mapas |
+| GitHub | Control de versiones |
+
+## 6. Arquitectura del sistema
 
 ```text
-travel_health_peru/
-├── app.py                        # Interfaz Streamlit para viajeros
-├── requirements.txt
+Registros epidemiológicos (2000–2025)
+                 |
+                 v
+       Limpieza y normalización
+                 |
+                 v
+     Agrupación epidemiológica
+                 |
+                 +---------------------+
+                                       |
+Open-Meteo                             |
+    |                                  |
+    v                                  |
+Temperatura y precipitación            |
+    |                                  |
+    v                                  |
+Agregación semanal                     |
+    |                                  |
+    +----------------------------------+
+                 |
+                 v
+      Dataset integrado
+                 |
+                 v
+    Ingeniería de características
+    Rezagos climáticos: 1–4 semanas
+                 |
+                 v
+        Random Forest
+          /        \
+         v          v
+   Clasificación  Regresión
+         \          /
+          v        v
+       Modelos entrenados
+                 |
+                 v
+      Dashboard Streamlit
+                 |
+                 v
+      Consulta del viajero
+```
+
+## 7. Procesamiento de los datos
+
+### 7.1. Datos epidemiológicos
+
+Se utilizaron archivos históricos de dengue y malaria asociados con registros de vigilancia epidemiológica del Perú.
+
+**Dengue:**
+
+- 1 065 274 registros originales.
+- Periodo de estudio: 2000–2025.
+- Diagnósticos A97.0, A97.1 y A97.2.
+- Diferenciación entre casos confirmados y probables.
+- Agregación por departamento y semana epidemiológica.
+
+Para el análisis se utiliza la suma de casos confirmados y probables como medida de actividad notificada.
+
+**Malaria:**
+
+- 22 archivos departamentales.
+- Registros organizados por provincia, año y semana.
+- Agrupación de casos por departamento y semana.
+
+Durante el procesamiento se normalizaron nombres geográficos, se revisaron registros inconsistentes y se evitó convertir automáticamente las semanas sin notificaciones en cero casos.
+
+### 7.2. Datos meteorológicos
+
+Se utilizó la API histórica de Open-Meteo para obtener:
+
+- Temperatura media diaria.
+- Temperatura máxima diaria.
+- Temperatura mínima diaria.
+- Precipitación diaria acumulada.
+
+El periodo histórico corresponde a 2000–2025.
+
+Se consultaron coordenadas de las capitales de los 25 departamentos considerados. Estas ubicaciones son puntos de referencia y no representan necesariamente las condiciones climáticas de cada departamento completo.
+
+Los registros se transformaron a semanas de domingo a sábado y se conservaron únicamente las semanas meteorológicas completas.
+
+### 7.3. Integración temporal
+
+Los datos epidemiológicos y meteorológicos se relacionaron mediante:
+
+- Departamento.
+- Año epidemiológico.
+- Semana epidemiológica.
+- Fecha de inicio de semana.
+
+La implementación utiliza una definición provisional de semana epidemiológica que requiere contrastarse con los calendarios históricos oficiales.
+
+Durante la auditoría se identificaron **469 registros semanales con inconsistencias respecto de esa definición**, que contienen 248 casos en total. Estos registros se separaron para revisión.
+
+## 8. Ingeniería de características
+
+Se incorporaron variables temporales para estudiar relaciones entre condiciones ambientales y actividad epidemiológica.
+
+Entre las características empleadas se encuentran:
+
+- Departamento codificado.
+- Año y estacionalidad.
+- Temperatura de semanas anteriores.
+- Precipitación de semanas anteriores.
+- Rezagos climáticos de 1 a 4 semanas.
+
+También se experimentó con rezagos epidemiológicos para analizar la información de casos previos.
+
+Se establecieron dos modalidades:
+
+| Modalidad | Descripción |
+|---|---|
+| **Travel** | Utiliza variables climáticas rezagadas y estacionalidad, sin requerir casos recientes de una semana futura |
+| **Full** | Incorpora además rezagos epidemiológicos; orientada al análisis retrospectivo |
+
+El dashboard utiliza los modelos Travel.
+
+## 9. Entrenamiento y evaluación
+
+Se implementaron modelos Random Forest independientes para ambas enfermedades.
+
+Para cada enfermedad se desarrollaron dos tareas:
+
+**Clasificación:** identificar niveles de actividad baja, moderada o alta.
+
+**Regresión:** estimar el número de casos semanales departamentales.
+
+Se aplicó una separación temporal de los datos:
+
+| Conjunto | Periodo |
+|---|---|
+| Entrenamiento | 2000–2017 |
+| Validación | 2018–2021 |
+| Prueba | 2022–2025 |
+
+Los umbrales de clasificación se calcularon usando exclusivamente registros del conjunto de entrenamiento.
+
+La clasificación es una definición estadística experimental, no una declaración oficial de brote epidemiológico.
+
+### Resultados iniciales
+
+| Modelo | MAE (casos) | Accuracy |
+|---|---:|---:|
+| Dengue — Travel | 161.48 | 31.7 % |
+| Dengue — Full | 117.69 | 69.1 % |
+| Malaria — Travel | 10.67 | 93.1 % |
+| Malaria — Full | 4.42 | 97.2 % |
+
+**Interpretación de métricas:**
+
+- **MAE:** error absoluto promedio al estimar la cantidad de casos.
+- **Accuracy:** proporción de clasificaciones correctas.
+- **Precision:** proporción de predicciones de una categoría que fueron correctas.
+- **Recall:** proporción de observaciones de una categoría que el modelo logró identificar.
+- **F1-score:** medida que combina precision y recall.
+- **Matriz de confusión:** muestra los aciertos y errores entre las categorías Bajo, Moderado y Alto.
+
+### Análisis de resultados
+
+El modelo Dengue Travel obtuvo una accuracy de 31.7 %, lo que evidencia un desempeño limitado y la necesidad de mejorar su capacidad de clasificación.
+
+El modelo Malaria Travel obtuvo una accuracy de 93.1 %. Sin embargo, esta cifra no demuestra por sí sola que identifique adecuadamente las semanas de actividad elevada.
+
+Por esta razón, se incorporaron métricas adicionales de evaluación, incluyendo matriz de confusión, F1 macro y recall de la categoría alta.
+
+Los resultados deben examinarse teniendo en cuenta posibles desequilibrios entre categorías, diferencias de cobertura y departamentos sin suficientes registros de entrenamiento.
+
+Los reportes de evaluación se encuentran en `reports/metricas_*.json`, cuando han sido generados y publicados.
+
+## 10. Dashboard interactivo para viajeros
+
+La interfaz se desarrolló utilizando Streamlit y Plotly.
+
+### Funcionalidades
+
+**Selección de destino**
+
+Permite elegir un departamento del Perú.
+
+**Selección de fecha**
+
+Permite consultar fechas dentro del horizonte disponible de Open-Meteo.
+
+**Indicadores de dengue y malaria**
+
+Presenta niveles experimentales de actividad mediante gráficos semicirculares y etiquetas visuales.
+
+**Clima del destino**
+
+Muestra temperaturas y condiciones de precipitación disponibles para la fecha seleccionada.
+
+**Mapa interactivo**
+
+Representa las capitales departamentales mediante marcadores geográficos.
+
+**Recomendaciones preventivas**
+
+Proporciona orientaciones generales relacionadas con protección frente a picaduras de mosquitos y preparación del viaje.
+
+Las recomendaciones no sustituyen una evaluación médica ni las recomendaciones sanitarias oficiales.
+
+### Capturas de la aplicación
+
+*Figura 1. Pantalla principal de Perú Travel Health.*
+
+*Figura 2. Indicadores experimentales de dengue y malaria.*
+
+*Figura 3. Mapa interactivo y recomendaciones para viajeros.*
+
+## 11. Dificultades encontradas y soluciones
+
+### Compatibilidad de Python
+
+Durante la configuración se presentaron errores en la instalación de bibliotecas.
+
+Se utilizó finalmente Python 3.12 en un entorno virtual independiente para garantizar la compatibilidad de las dependencias.
+
+### Límite de solicitudes de Open-Meteo
+
+La descarga inicial fue interrumpida por un error HTTP 429 (*Too Many Requests*).
+
+Se mejoró el mecanismo de descarga mediante almacenamiento por bloques, reutilización de archivos existentes y reintentos controlados.
+
+### Departamentos sin antecedentes de entrenamiento
+
+Durante la evaluación se identificaron departamentos presentes en validación o prueba que no contaban con información suficiente en entrenamiento.
+
+Se incorporaron controles para evitar evaluar esos registros con umbrales inexistentes.
+
+Esta limitación se conserva como parte de las consideraciones metodológicas.
+
+### Diferencias de cobertura epidemiológica
+
+Los registros históricos no presentan una cobertura uniforme en todos los departamentos y años.
+
+Por ello, no se interpreta automáticamente la ausencia de información como ausencia de casos.
+
+### Predicciones futuras
+
+Los datos epidemiológicos utilizados llegan hasta 2025.
+
+La aplicación utiliza modelos Travel para realizar estimaciones sin requerir los casos de la fecha futura consultada. Sin embargo, no incorpora automáticamente vigilancia epidemiológica actualizada.
+
+## 12. Instalación y ejecución
+
+### Requisitos
+
+- Python 3.12 recomendado.
+- Acceso a internet para consultar Open-Meteo.
+- Dependencias incluidas en `requirements.txt`.
+
+### Ejecutar el dashboard
+
+Clonar o descargar el repositorio y abrir la carpeta en VS Code.
+
+En Windows PowerShell:
+
+```powershell
+py -3.12 -m venv .venv312
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv312\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+Abrir la dirección local indicada por Streamlit, normalmente:
+
+`http://localhost:8501`
+
+Para utilizar el dashboard se requieren los modelos `dengue_travel.joblib` y `malaria_travel.joblib` en la carpeta `models/`.
+
+### Reentrenamiento completo
+
+Para reproducir el procesamiento y entrenamiento desde cero, colocar previamente los archivos epidemiológicos originales en:
+
+```text
+data/raw/dengue/
+data/raw/malaria/
+```
+
+El repositorio público no incluye necesariamente los CSV originales.
+
+Después ejecutar:
+
+```powershell
+python -m src.pipeline
+```
+
+El procesamiento realiza limpieza epidemiológica, descarga meteorológica, integración, ingeniería de características y entrenamiento.
+
+La descarga histórica puede estar sujeta a límites de Open-Meteo.
+
+### Ejecutar las pruebas
+
+```powershell
+python -m pytest -q
+```
+
+## 13. Estructura del proyecto
+
+```text
+PeruTH/
+├── app.py
 ├── README.md
+├── requirements.txt
+├── .gitignore
 ├── src/
 │   ├── __init__.py
-│   ├── config.py                 # 25 capitales departamentales
-│   ├── epi.py                    # Normalización y semana (provisional)
-│   ├── etl.py                    # Limpieza dengue y malaria
-│   ├── weather.py                # Descarga Open-Meteo histórica/en vivo
-│   ├── features.py               # Integración y 4 lags
-│   ├── train.py                  # 4 pares de modelos y métricas
-│   └── pipeline.py               # Ejecuta la secuencia completa
-├── data/
-│   ├── raw/
-│   │   ├── dengue/
-│   │   │   └── datos_abiertos_vigilancia_dengue_2000_2025_0.csv
-│   │   └── malaria/
-│   │       └── malaria_2000-2025_*.csv (22 archivos)
-│   ├── interim/                 # Caché de descargas por departamento
-│   └── processed/               # ETL, clima semanal, dataset modelado
-├── models/                       # *.joblib al entrenar
-├── reports/                      # Auditorías, métricas JSON
+│   ├── config.py
+│   ├── epi.py
+│   ├── etl.py
+│   ├── weather.py
+│   ├── features.py
+│   ├── train.py
+│   └── pipeline.py
+├── models/
+│   ├── dengue_travel.joblib
+│   └── malaria_travel.joblib
+├── reports/
+│   └── metricas_*.json
 └── tests/
     └── test_pipeline.py
 ```
 
-El **ZIP completo** incluye los 23 CSV fuente suministrados; el ZIP de **solo código** exige que coloques esos archivos manualmente en las carpetas indicadas. No hay necesidad de convertir los archivos originales.
+*Los archivos de métricas y modelos se incluyen según los cambios publicados en el repositorio.*
 
-## Ejecutar desde cero (Windows / VS Code)
+## 14. Limitaciones y mejoras futuras
 
-Abre la carpeta `travel_health_peru` en VS Code y abre una terminal dentro de ella.
+Perú Travel Health es un prototipo de investigación y aprendizaje que todavía presenta oportunidades de mejora:
 
-**PowerShell**:
+1. Mejorar el desempeño predictivo del modelo de dengue.
+2. Evaluar el F1-score y recall de las clases de actividad elevada.
+3. Comparar Random Forest con modelos de referencia y otros algoritmos.
+4. Incorporar nuevas variables ambientales y espaciales.
+5. Evaluar calibración de probabilidades y desbalance de clases.
+6. Validar calendarios epidemiológicos históricos.
+7. Mejorar la representatividad espacial de los datos climáticos.
+8. Incorporar registros epidemiológicos más recientes y fuentes oficiales de orientación para viajeros.
 
-```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-python -m src.pipeline
-streamlit run app.py
-```
+## 15. Conclusiones
 
-En macOS o Linux:
+Perú Travel Health demuestra la integración de ciencia de datos, Machine Learning y desarrollo de aplicaciones web para abordar un problema vinculado con la salud pública y el turismo.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m src.pipeline
-streamlit run app.py
-```
+El proyecto permitió construir un flujo de procesamiento reproducible que combina registros epidemiológicos históricos con datos meteorológicos, entrena modelos predictivos y presenta sus resultados mediante una interfaz interactiva.
 
-Abre la URL local que muestra Streamlit (normalmente `http://localhost:8501`). La primera descarga es **larga**, porque consulta aproximadamente 25 capitales × 26 años, divididos en ventanas de 5 años; después, la caché local hace que las siguientes ejecuciones reutilicen lo ya descargado. Si falla una región, reejecuta `python -m src.pipeline`: se retoman los CSV meteorológicos ya guardados.
+Las evaluaciones iniciales evidencian tanto las posibilidades como las limitaciones de los modelos desarrollados.
 
-### Ejecutar por etapas
+El siguiente objetivo es fortalecer su metodología, mejorar el desempeño predictivo y continuar evaluando el potencial de la inteligencia artificial como herramienta de apoyo para la interpretación de información epidemiológica.
 
-```bash
-python -m src.etl       # Produce data/processed/epidemiologia_semanal.csv
-python -m src.weather   # Descarga diario y agrupa clima semanal
-python -m src.features  # Produce data/processed/dataset_modelado.csv
-python -m src.train     # Entrena modelos y genera reportes de desempeño
-streamlit run app.py    # Abre la aplicación
-```
+## 16. Referencias
 
-Para comprobar sin internet algunas reglas de tratamiento:
+1. Organización Mundial de la Salud. *Dengue*.  
+   https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue
 
-```bash
-python -m pytest -q
-```
+2. Organización Mundial de la Salud. *Malaria*.  
+   https://www.who.int/news-room/fact-sheets/detail/malaria
 
-## Qué hace la limpieza
+3. Ministerio de Salud del Perú. *Plataforma Nacional de Datos Abiertos*.  
+   https://www.datosabiertos.gob.pe/
 
-- **Dengue:** las 1 065 274 filas de origen representan notificaciones; se filtran diagnósticos `A97.0/A97.1/A97.2` y estados `C` (confirmados), `P` (probables). Se cuentan por departamento, año y semana. `casos` = C+P, porque el objetivo demo es actividad notificada, **no solo incidencia confirmada**. Se retienen C y P por separado para revisión.
-- **Malaria:** los 22 archivos contienen `ano,semana,provincia,malaria_total`; se suman los conteos provinciales por departamento (determinado por el nombre del archivo). No se inventa confirmación/probabilidad porque esos atributos no figuran en los CSV.
-- Se quitan tildes, espacios sobrantes y variantes de nombres regionales. Los nombres de provincia con caracteres dañados no se utilizan como clave de integración, porque los archivos están etiquetados por departamento.
-- **Semanas ausentes de dengue** quedan ausentes: **no se convierten en cero**, pues no está acreditado si son ceros epidemiológicos o falta de vigilancia.
-- **Semana epidemiológica provisional:** domingo-sábado; SE1 contiene el 4 de enero. Esto permite un procesamiento reproducible, pero **NO sustituye los calendarios oficiales CDC Perú de cada año**. Registros fuera de ese calendario quedan en `reports/semanas_epidemiologicas_pendientes.csv`, sin ser reasignados.
-- Las semanas meteorológicas deben estar completas (7 días con todas las variables disponibles).
-- Los registros de clima se toman de la **capital departamental**, como aproximación imperfecta de la exposición climática en toda la región. Para un proyecto científico más robusto, muestrear o agregar una grilla por departamento.
+4. Open-Meteo. *Historical Weather API*.  
+   https://open-meteo.com/en/docs/historical-weather-api
 
-## Modelo y validación
+5. Open-Meteo. *Weather Forecast API*.  
+   https://open-meteo.com/en/docs
 
-Se entrenan **dos tareas por enfermedad**: clasificación `Bajo/Moderado/Alto` y regresión de número de casos semanales.
+6. Scikit-learn. *RandomForestClassifier*.  
+   https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 
-| Familia | Características | Uso |
-|---|---|---|
-| `*_travel.joblib` | Coordenada regional (codificada por departamento), estación anual, año, rezagos climáticos semanas 1–4 | **Dashboard**: predicción sin suponer casos recientes inexistentes |
-| `*_full.joblib` | Todas las variables anteriores **más rezagos de casos** semanas 1–4 | Investigación retrospectiva; no se utiliza en viajes futuros sin datos recientes |
+7. Streamlit. *Documentation*.  
+   https://docs.streamlit.io/
 
-Modelos RandomForest (100 árboles), divididos **cronológicamente**: entrenamiento **2000–2017**, validación **2018–2021**, prueba fuera de muestra **2022–2025**. Los umbrales se calculan con **solo el conjunto de entrenamiento**, por departamento, con los percentiles 60 y 90 de semanas con casos positivos. Es una taxonomía **estadística experimental**, no una definición clínica de brote. Las métricas MAE y accuracy se guardan en `reports/metricas_*.json` y nunca se muestran como evidencia de calibración.
+---
 
-Si una enfermedad no tiene registros en una región o no hay suficientes semanas completas para inferir clima, el dashboard muestra **sin datos**, no riesgo bajo.
+**Proyecto académico de inteligencia artificial.**
 
-Las probabilidades de `RandomForestClassifier` son **puntuaciones no calibradas**. La UI muestra confianza en la categoría predicha y P(actividad alta); ninguno equivale a la probabilidad de que un turista se contagie. La regresión estima **conteos semanales departamentales**, no tasas por población ni casos a nivel de hotel.
-
-## Clima en vivo y fechas futuras
-
-Se utiliza `https://api.open-meteo.com/v1/forecast` con **hasta 16 días de horizonte** (día actual incluido) y datos de las **seis semanas previas** para calcular 4 rezagos climáticos completos. Las temperaturas medias para pronóstico se calculan promediando las **temperaturas horarias**, porque ese endpoint no devuelve directamente la media diaria como el histórico. La probabilidad de precipitación diaria es `precipitation_probability_max` de Open-Meteo. Se separa visualmente del estimador semanal de actividad.
-
-Una consulta por una fecha más allá del horizonte de Open-Meteo **no se habilita**, porque no existen valores meteorológicos pronosticados válidos para fechas arbitrariamente lejanas.
-
-Para el mapa de 25 destinos hay un **botón voluntario**: la primera carga consulta las regiones concurrentemente y se guarda temporalmente en caché. Los marcadores representan capitales (no coropletas exactas).
-
-## Auditoría real hecha con los archivos recibidos
-
-- 1 065 274 notificaciones de dengue (2000–2025).
-- 22 archivos departamentales de malaria.
-- 23 departamentos con dengue y 22 con malaria en estos archivos.
-- **469 registros semanales** no se ajustan a la definición calendárica provisional; contienen en conjunto **248 casos**. Se excluyen del dataset modelado, pero están guardados íntegramente para revisión y no deben descartarse en un análisis definitivo.
-
-**Advertencias metodológicas importantes:** investigar semanas 53, posible subregistro de 2025, períodos sin vigilancia, definiciones confirmados/probables, variaciones de vigilancia en el tiempo, validación espacial y la representatividad de las capitales. Usar clima histórico de Open-Meteo requiere conexión y aceptar las políticas de uso/citación de ese servicio.
-
-## Verificación de resultados y mantenimiento
-
-- `data/processed/epidemiologia_semanal.csv`: conteos epidemiológicos aceptados.
-- `data/processed/clima_diario_openmeteo.csv`: meteorología histórica descargada.
-- `data/processed/clima_semanal_openmeteo.csv`: clima semanal completo.
-- `data/processed/dataset_modelado.csv`: clima + dengue o malaria, sin ceros inventados.
-- `models/dengue_travel.joblib`, `models/malaria_travel.joblib`: modelos del dashboard.
-- `models/dengue_full.joblib`, `models/malaria_full.joblib`: modelos retrospectivos.
-- `reports/metricas_*.json`: evaluación con fechas de entrenamiento y test.
-- `reports/semanas_epidemiologicas_pendientes.csv`: elementos excluidos por fecha.
-- `reports/cobertura_epi.csv`: presencia histórica por enfermedad, departamento y año.
-
-**Nota de seguridad:** los archivos `.joblib` solo deben abrirse si provienen de tu propio entrenamiento; `joblib.load()` ejecuta serialización de Python y no debe usarse con archivos externos desconocidos.
-
-## Fuentes y especificaciones de API
-
-- Documentación oficial Open-Meteo histórico: https://open-meteo.com/en/docs/historical-weather-api
-- Pronóstico Open-Meteo: https://open-meteo.com/en/docs
-- Archivo epidemiológico y CSV departamentales: archivos proporcionados por el usuario, procedentes de vigilancia CDC-MINSA según su descripción.
-- En implementación de producción hay que confirmar acceso, licencia, definición oficial de casos, verificación epidemiológica y calibración.
+*La aplicación no debe utilizarse como fuente única para decisiones médicas o sanitarias. Para información sobre riesgos y prevención, consultar fuentes oficiales y profesionales de salud.*
